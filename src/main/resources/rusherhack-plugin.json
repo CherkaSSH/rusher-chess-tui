@@ -1,0 +1,14 @@
+{
+  "Plugin-Class": "org.churka.main",
+  "Name": "Rusher-chess-tui",
+  "Version": "${plugin_version}",
+  "Description": "",
+  "Authors": [
+    "Churka"
+  ],
+  "Minecraft-Versions": [
+    "1.20.1",
+    "1.20.2",
+    "1.20.4"
+  ]
+}
