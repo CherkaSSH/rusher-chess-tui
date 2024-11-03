@@ -31,7 +31,7 @@ public class chesstui extends Module {
         return new ModuleCommand(this){
             @CommandExecutor
             public String getBoard(){
-                if(board!=null&mc.getConnection()!=null) return board.toString(); else return "No game yet";
+                if(board!=null&mc.getConnection()!=null) return betterToString(); else return "No game yet";
             }
 
             @CommandExecutor(subCommand = "move")
@@ -113,7 +113,7 @@ public class chesstui extends Module {
         for (int i = 0; i < 64; i++) {
             if (pieces[i]!=Piece.NONE) {
                 twoDPieces[(i-i%8)/8][i%8]=pieces[i].getFanSymbol();
-            } else twoDPieces[(i-i%8)/8][i%8]=" ";
+            } else twoDPieces[(i-i%8)/8][i%8]="‾";
         }
         builder.append("--------------------\n");
         for (int row = 0; row < 8; row++) {
