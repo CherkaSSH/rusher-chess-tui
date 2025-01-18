@@ -1,8 +1,10 @@
 package org.churka;
 
+import com.github.bhlangonijr.chesslib.Piece;
 import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.Square;
 import com.github.bhlangonijr.chesslib.move.Move;
+import lombok.Getter;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import org.rusherhack.client.api.events.client.chat.EventAddChat;
 import org.rusherhack.client.api.feature.command.ModuleCommand;
@@ -31,6 +33,7 @@ public class ChessTUI extends ToggleableModule {
      */
     int cAccept;
     private String oppmaybe;
+    @Getter
     private State state;
 
     @Override
@@ -55,29 +58,51 @@ public class ChessTUI extends ToggleableModule {
             }
 
             @CommandExecutor
-            @CommandExecutor.Argument({"from,to"})
-            public String makeMove(Square from, Square to){
-                if(!online()) return "Get on the server";
+            @CommandExecutor.Argument({"from","to","piece"})
+            public String makeMove(String from, String to, String piece){
+                if(online()) return "Get on the server";
                 if(state.board.getSideToMove()!=state.myside) return "Not your time to move";
-                if(state.board.isMoveLegal(new Move(from,to),true)) return "Illigal move";
-                mc.getConnection().sendCommand("w "+state.getOpponent()+" MOVE "+from+" "+to);
+                if(state.board.isMoveLegal(new Move(Square.fromValue(from), Square.fromValue(to),Piece.fromValue(piece)),true)) return "Illegal move";
+                mc.getConnection().sendCommand("w "+state.getOpponent()+" CHESS_MOVE "+from+" "+to+" "+piece);
                 return "Made move";
+            }
+
+            @CommandExecutor
+            public String leave(){
+                if(online()|state==null) return "Not online";
+                //:troll:
+                mc.getConnection().sendCommand("w "+state.getOpponent()+" IMGAY");
+                mc.getConnection().sendChat("IM GAY");
+                state.board=null;
+                return "Coward";
             }
 
         };
     }
+
     @Subscribe
     public void onChat(EventAddChat event){
-        if (cAccept==0) state=null;
+        if (cAccept==0) state = null;
         String msg=event.getChatComponent().getString();
-        if (msg.contains("CHESSREQUEST")){
-            oppmaybe=msg.split(" ")[1];
+        if (msg.contains("CHESS_REQUEST") & msg.contains("From")){
+            oppmaybe = msg.split(" ")[1];
+        } else if (msg.contains("CHESS_MOVE") & msg.contains(state.getOpponent()) & msg.split(" ").length==6) {
+            getLogger().info("New move from"+state.getOpponent());
+            String[] temp = msg.split(" ");
+            state.board.doMove(new Move(Square.fromValue(temp[3]),
+                    Square.fromValue(temp[4]),
+                    Piece.fromValue(temp[5])),
+                    true);
+        } else if (msg.contains("IM GAY") & msg.contains(mc.player.getName().getString())) {
+            event.setCancelled(true);
+        } else if (msg.contains("IM GAY") & msg.contains(state.getOpponent())){
+            this.getLogger().info(state.getOpponent()+" left the game");
         }
     }
 
     private List<String> onlinePlayers(){
-        List<String> ls = List.of();
-        if(!online()) return ls;
+        List<String> ls = new java.util.ArrayList<>();
+        if(online()) return ls;
         for (PlayerInfo pi: Objects.requireNonNull(mc.getConnection()).getOnlinePlayers()){
             ls.add(pi.getProfile().getName());
         }
@@ -85,6 +110,6 @@ public class ChessTUI extends ToggleableModule {
     }
 
     boolean online(){
-        return mc.getConnection()!=null;
+        return mc.getConnection() == null;
     }
 }
