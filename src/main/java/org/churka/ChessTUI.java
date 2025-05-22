@@ -53,6 +53,8 @@ public class ChessTUI extends ToggleableModule {
                     return "No pending invitation from " + inviterName + " or invitation expired.";
                 }
                 state = new State(inviterName, Side.BLACK);
+                this.getLogger().info("[DEBUG] acceptGame: Player side set to: " + state.myside);
+                this.getLogger().info("[DEBUG] acceptGame: Board side to move is: " + state.board.getSideToMove());
                 // White (inviter) moves first, this is set in State constructor and when inviter processes accept.
                 // state.board.setSideToMove(Side.WHITE); 
                 mc.getConnection().sendCommand("w " + inviterName + " [CHESS] ACCEPT " + mc.player.getName().getString());
@@ -65,6 +67,8 @@ public class ChessTUI extends ToggleableModule {
             public String makeMove(String from, String to) {
                 if (isOffline()) return "You are not connected to a server.";
                 if (state == null || state.board == null) return "No game in progress.";
+                this.getLogger().info("[DEBUG] makeMove: Checking turn. Player side: " + state.myside);
+                this.getLogger().info("[DEBUG] makeMove: Board side to move: " + state.board.getSideToMove());
                 if (state.board.getSideToMove() != state.myside) return "Not your turn to move.";
 
                 String fromSq = from.toUpperCase();
@@ -148,6 +152,8 @@ public class ChessTUI extends ToggleableModule {
             if (pendingOutgoingInviteOpponent != null && pendingOutgoingInviteOpponent.equalsIgnoreCase(sender)) {
                 this.getLogger().info(sender + " accepted your chess invitation. You are White. White to move.");
                 state = new State(sender, Side.WHITE);
+                this.getLogger().info("[DEBUG] onChat ACCEPT: Player side set to: " + state.myside);
+                this.getLogger().info("[DEBUG] onChat ACCEPT: Board side to move is: " + state.board.getSideToMove());
                 // state.board.setSideToMove(Side.WHITE); // Set in State constructor
                 pendingOutgoingInviteOpponent = null; // Clear pending invite
             } else {
@@ -180,6 +186,8 @@ public class ChessTUI extends ToggleableModule {
                 }
                 Move move = new Move(squareFrom, squareTo);
 
+                this.getLogger().info("[DEBUG] onChat MOVE: Checking turn. My player side: " + state.myside);
+                this.getLogger().info("[DEBUG] onChat MOVE: Board side to move: " + state.board.getSideToMove());
                 if (state.board.getSideToMove() == state.myside) {
                     this.getLogger().info("Move received from " + sender + " but it's not their turn.");
                     return;
