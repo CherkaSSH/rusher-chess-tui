@@ -6,10 +6,12 @@ import com.github.bhlangonijr.chesslib.Side;
 import lombok.Getter;
 
 public class State {
-    public State(String opponent,Side side){
-        this.opponent=opponent;
-        this.myside=side;
-        this.board=new Board();
+    public State(String opponentName, Side side) {
+        this.opponent = opponentName;
+        this.myside = side;
+        this.board = new Board();
+        // White always makes the first move in a new game.
+        this.board.setSideToMove(Side.WHITE);
     }
 
     @Getter

@@ -9,6 +9,10 @@ public class GameHudElement extends TextHudElement {
 
     @Override
     public String getText() {
-        return Main.getState().getBoard();
+        State gameState = Main.getState();
+        if (gameState == null) {
+            return "No active chess game.";
+        }
+        return gameState.getBoard();
     }
 }
